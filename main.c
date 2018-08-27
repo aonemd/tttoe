@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 		board->x        = max_x / 2;
 		board->y        = max_y / 2;
 		board->nrows    = board->ncolumns = 3;
-		board->max_x    = board->nrows * 11;
+		board->max_x    = board->nrows * 12;
 		board->max_y    = board->ncolumns * 6;
 
 		drawBoard(board);
