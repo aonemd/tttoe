@@ -52,22 +52,24 @@ void drawBoard(Board *board) {
 
 int main(int argc, char *argv[]) {
 	int max_y, max_x;
+	int exit_game = 0;
 	Board *board = malloc(sizeof(Board));
 
 	initscr();
 	noecho();
 	curs_set(FALSE);
 
-	getmaxyx(stdscr, max_y, max_x);
-	board->x        = max_x / 2;
-	board->y        = max_y / 2;
-	board->nrows    = board->ncolumns = 3;
-	board->max_x    = board->nrows * 11;
-	board->max_y    = board->ncolumns * 6;
+	while (!exit_game) {
+		getmaxyx(stdscr, max_y, max_x);
+		board->x        = max_x / 2;
+		board->y        = max_y / 2;
+		board->nrows    = board->ncolumns = 3;
+		board->max_x    = board->nrows * 11;
+		board->max_y    = board->ncolumns * 6;
 
-	drawBoard(board);
-
-	getch();
+		drawBoard(board);
+		refresh();
+	}
 
     resetty();
 	endwin();
