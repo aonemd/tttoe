@@ -63,7 +63,7 @@ void moveCursor (int *origin, int *destination, Board *board) {
 	attroff(COLOR_PAIR(3));
 }
 
-int main(int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
 	int cursor_origin[]      = {0, 0};
