@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
 
 	while (!exit_game) {
 		getmaxyx(stdscr, max_y, max_x);
-		board->x        = max_x / 2;
-		board->y        = max_y / 2;
+		board->x        = max_x / 2 - 20;
+		board->y        = max_y / 2 - 10;
 		board->nrows    = board->ncolumns = 3;
 		board->max_x    = board->nrows * 12;
 		board->max_y    = board->ncolumns * 6;
