@@ -21,6 +21,7 @@ void drawBoard(Board *board) {
 					current_symbol = ACS_TTEE;
 				else
 					current_symbol = ACS_HLINE;
+				mvaddch(board->y+i, board->x+j, current_symbol);
 			} else if (i % (board->max_y / board->nrows) == 0 && i != board->max_y) {
 				if (j == 0)
 					current_symbol = ACS_LTEE;
@@ -30,25 +31,24 @@ void drawBoard(Board *board) {
 					current_symbol = ACS_PLUS;
 				else
 					current_symbol = ACS_HLINE;
+				mvaddch(board->y+i, board->x+j, current_symbol);
 			} else if (i == board->max_y) {
-                if (j == 0)
+				if (j == 0)
 					current_symbol = ACS_LLCORNER;
-                else if (j == board->max_x)
+				else if (j == board->max_x)
 					current_symbol = ACS_LRCORNER;
-                else if (j % (board->max_x / board->nrows) == 0)
+				else if (j % (board->max_x / board->nrows) == 0)
 					current_symbol = ACS_BTEE;
-                else
+				else
 					current_symbol = ACS_HLINE;
+				mvaddch(board->y+i, board->x+j, current_symbol);
 			} else if (j % (board->max_x / board->nrows) == 0) {
 				current_symbol = ACS_VLINE;
-			} else {
-				current_symbol = 184; // empty space
+				mvaddch(board->y+i, board->x+j, current_symbol);
 			}
-
-			mvaddch(board->y+i, board->x+j, current_symbol);
-			refresh();
 		}
 	}
+	refresh();
 }
 
 void moveCursor (int *origin, int *destination, Board *board) {
