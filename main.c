@@ -68,6 +68,18 @@ void moveCursor (int *origin, int *destination, Board *board) {
 	attroff(COLOR_PAIR(3));
 }
 
+void drawCell (int *destination, char letter, Board *board) {
+	int x, y;
+
+	y = board->max_y/board->ncolumns * destination[0] + board->y + 3;
+	x = board->max_x/board->nrows	 * destination[1] + board->x + 6;
+
+	attron(COLOR_PAIR(1));
+	mvaddch(y, x, letter);
+	refresh();
+	attroff(COLOR_PAIR(1));
+}
+
 int main (int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
@@ -126,6 +138,8 @@ int main (int argc, char *argv[]) {
 				}
 				break;
 			case ' ':
+				drawCell(cursor_destination, 'X', board);
+				break;
 			case 'q':
 				exit_game = 1;
 
