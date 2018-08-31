@@ -55,9 +55,14 @@ void moveCursor (int *origin, int *destination, Board *board) {
 	int i, x, y;
 	attron(COLOR_PAIR(3));
 	for (i = 0; i <= 10; i++) {
-        y = board->max_y/board->nrows * destination[0] + board->y + 5;
-        x = board->max_x/board->nrows * destination[1] + board->x + 1 + i;
+        y = board->max_y/board->ncolumns * origin[0] + board->y + 5;
+        x = board->max_x/board->nrows	 * origin[1] + board->x + 1 + i;
+        mvaddch(y, x, ' ');
+
+        y = board->max_y/board->ncolumns * destination[0] + board->y + 5;
+        x = board->max_x/board->nrows	 * destination[1] + board->x + 1 + i;
         mvaddch(y, x, ACS_CKBOARD);
+
 		refresh();
 	}
 	attroff(COLOR_PAIR(3));
@@ -89,31 +94,34 @@ int main (int argc, char *argv[]) {
 		board->max_y    = board->ncolumns * 6;
 
 		drawBoard(board);
-		moveCursor(cursor_origin, cursor_destination, board);
 
 		int keyPressed = getch();
 		switch (keyPressed) {
 			case KEY_UP:
 				if (cursor_origin[0] > 0) {
 					cursor_destination[0] = cursor_origin[0] - 1;
+					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[0]      = cursor_destination[0];
 				}
 				break;
 			case KEY_DOWN:
 				if (cursor_origin[0] < board->ncolumns-1) {
 					cursor_destination[0] = cursor_origin[0] + 1;
+					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[0]      = cursor_destination[0];
 				}
 				break;
 			case KEY_RIGHT:
 				if (cursor_origin[1] < board->nrows-1) {
 					cursor_destination[1] = cursor_origin[1] + 1;
+					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[1]      = cursor_destination[1];
 				}
 				break;
 			case KEY_LEFT:
 				if (cursor_origin[1] > 0) {
 					cursor_destination[1] = cursor_origin[1] - 1;
+					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[1]      = cursor_destination[1];
 				}
 				break;
