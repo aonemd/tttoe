@@ -7,6 +7,7 @@ typedef struct Board {
 	int nrows, ncolumns;
 	int max_x, max_y;
 	int current_player;
+	int nmoves_played;
 	char **cells;
 } Board;
 
@@ -14,6 +15,8 @@ void clearBoard (Board *board) {
 	for (int i = 0; i <  board->nrows; i++)
 		for (int j = 0; j < board->ncolumns; j++)
 			board->cells[i][j] = '\0';
+
+	board->nmoves_played = 0;
 }
 
 void drawBoard(Board *board) {
@@ -100,13 +103,15 @@ void placeCell (int *destination, Board *board) {
 
 		drawCell(destination, current_symbol, board);
 		board->cells[destination[0]][destination[1]] = current_symbol;
+		board->nmoves_played++;
 		board->current_player = 1 + 2 - board->current_player; // toggle current player
 	}
 }
 
 void drawGameStats(Board *board) {
 	move(board->y, board->x + 14 * board->nrows);
-	printw("Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
+	printw(board->y, board->x + 14 * board->nrows, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
+	mvprintw(board->y + 2, board->x + 14 * board->nrows, "Moves: %d", board->nmoves_played);
 }
 
 int main (int argc, char *argv[]) {
