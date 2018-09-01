@@ -6,6 +6,7 @@ typedef struct Board {
 	int x, y;
 	int nrows, ncolumns;
 	int max_x, max_y;
+	int current_player;
 } Board;
 
 void drawBoard(Board *board) {
@@ -85,7 +86,8 @@ int main (int argc, char *argv[]) {
 	int exit_game            = 0;
 	int cursor_origin[]      = {0, 0};
 	int cursor_destination[] = {0, 0};
-	Board *board             = malloc(sizeof(Board));
+	Board *board          = malloc(sizeof(Board));
+	board->current_player = 1;
 
 	initscr();
 	noecho();
@@ -139,7 +141,13 @@ int main (int argc, char *argv[]) {
 				}
 				break;
 			case ' ':
-				drawCell(cursor_destination, 'X', board);
+				if (board->current_player == 1) {
+					drawCell(cursor_destination, 'X', board);
+				} else if (board->current_player == 2) {
+					drawCell(cursor_destination, 'O', board);
+				}
+
+				board->current_player = 1 + 2 - board->current_player; // toggle current player
 				break;
 			case 'q':
 				exit_game = 1;
