@@ -81,6 +81,11 @@ void drawCell (int *destination, char letter, Board *board) {
 	attroff(COLOR_PAIR(1));
 }
 
+void drawGameStats(Board *board) {
+	move(board->y, board->x + 14 * board->nrows);
+	printw("Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
+}
+
 int main (int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
@@ -109,6 +114,7 @@ int main (int argc, char *argv[]) {
 
 		drawBoard(board);
 		moveCursor(cursor_origin, cursor_destination, board);
+		drawGameStats(board);
 
 		int keyPressed = getch();
 		switch (keyPressed) {
