@@ -4,7 +4,7 @@
 
 typedef struct Board {
 	int x, y;
-	int nrows, ncolumns;
+	int size;
 	int max_x, max_y;
 	int current_player;
 	int nmoves_played;
@@ -12,8 +12,8 @@ typedef struct Board {
 } Board;
 
 void clearBoard (Board *board) {
-	for (int i = 0; i <  board->nrows; i++)
-		for (int j = 0; j < board->ncolumns; j++)
+	for (int i = 0; i <  board->size; i++)
+		for (int j = 0; j < board->size; j++)
 			board->cells[i][j] = '\0';
 
 	board->nmoves_played = 0;
@@ -28,17 +28,17 @@ void drawBoard(Board *board) {
 					current_symbol = ACS_ULCORNER;
 				else if (j == board->max_x)
 					current_symbol = ACS_URCORNER;
-				else if (j % (board->max_x / board->nrows) == 0)
+				else if (j % (board->max_x / board->size) == 0)
 					current_symbol = ACS_TTEE;
 				else
 					current_symbol = ACS_HLINE;
 				mvaddch(board->y+i, board->x+j, current_symbol);
-			} else if (i % (board->max_y / board->nrows) == 0 && i != board->max_y) {
+			} else if (i % (board->max_y / board->size) == 0 && i != board->max_y) {
 				if (j == 0)
 					current_symbol = ACS_LTEE;
 				else if (j == board->max_x)
 					current_symbol = ACS_RTEE;
-				else if (j % (board->max_x / board->nrows) == 0)
+				else if (j % (board->max_x / board->size) == 0)
 					current_symbol = ACS_PLUS;
 				else
 					current_symbol = ACS_HLINE;
@@ -48,12 +48,12 @@ void drawBoard(Board *board) {
 					current_symbol = ACS_LLCORNER;
 				else if (j == board->max_x)
 					current_symbol = ACS_LRCORNER;
-				else if (j % (board->max_x / board->nrows) == 0)
+				else if (j % (board->max_x / board->size) == 0)
 					current_symbol = ACS_BTEE;
 				else
 					current_symbol = ACS_HLINE;
 				mvaddch(board->y+i, board->x+j, current_symbol);
-			} else if (j % (board->max_x / board->nrows) == 0) {
+			} else if (j % (board->max_x / board->size) == 0) {
 				current_symbol = ACS_VLINE;
 				mvaddch(board->y+i, board->x+j, current_symbol);
 			}
@@ -66,12 +66,12 @@ void moveCursor (int *origin, int *destination, Board *board) {
 	int i, x, y;
 	attron(COLOR_PAIR(3));
 	for (i = 0; i <= 10; i++) {
-        y = board->max_y/board->ncolumns * origin[0] + board->y + 5;
-        x = board->max_x/board->nrows	 * origin[1] + board->x + 1 + i;
+        y = board->max_y/board->size * origin[0] + board->y + 5;
+        x = board->max_x/board->size	 * origin[1] + board->x + 1 + i;
         mvaddch(y, x, ' ');
 
-        y = board->max_y/board->ncolumns * destination[0] + board->y + 5;
-        x = board->max_x/board->nrows	 * destination[1] + board->x + 1 + i;
+        y = board->max_y/board->size * destination[0] + board->y + 5;
+        x = board->max_x/board->size	 * destination[1] + board->x + 1 + i;
         mvaddch(y, x, ACS_CKBOARD);
 
 		refresh();
@@ -82,8 +82,8 @@ void moveCursor (int *origin, int *destination, Board *board) {
 void drawCell (int *destination, char letter, Board *board) {
 	int x, y;
 
-	y = board->max_y/board->ncolumns * destination[0] + board->y + 3;
-	x = board->max_x/board->nrows	 * destination[1] + board->x + 6;
+	y = board->max_y/board->size * destination[0] + board->y + 3;
+	x = board->max_x/board->size	 * destination[1] + board->x + 6;
 
 	attron(COLOR_PAIR(1));
 	mvaddch(y, x, letter);
@@ -109,8 +109,8 @@ void placeCell (int *destination, Board *board) {
 }
 
 void drawGameStats(Board *board) {
-	mvprintw(board->y, board->x + 14 * board->nrows, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
-	mvprintw(board->y + 2, board->x + 14 * board->nrows, "Moves: %d", board->nmoves_played);
+	mvprintw(board->y, board->x + 14 * board->size, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
+	mvprintw(board->y + 2, board->x + 14 * board->size, "Moves: %d", board->nmoves_played);
 }
 
 int main (int argc, char *argv[]) {
@@ -119,11 +119,11 @@ int main (int argc, char *argv[]) {
 	int cursor_origin[]      = {0, 0};
 	int cursor_destination[] = {0, 0};
 	Board *board             = malloc(sizeof(Board));
-	board->nrows             = board->ncolumns = 3;
-	board->cells			 = malloc(sizeof(char *) * board->nrows);
-	for (int i = 0; i < board->nrows; i++)
-		board->cells[i] = malloc(sizeof(char) * board->ncolumns);
+	board->size              = 3;
 	board->current_player    = 1;
+	board->cells             = malloc(sizeof(char *) * board->size);
+	for (int i = 0; i < board->size; i++)
+		board->cells[i] = malloc(sizeof(char) * board->size);
 	clearBoard(board);
 
 	initscr();
@@ -140,8 +140,8 @@ int main (int argc, char *argv[]) {
 		getmaxyx(stdscr, max_y, max_x);
 		board->x        = max_x / 2 - 20;
 		board->y        = max_y / 2 - 10;
-		board->max_x    = board->nrows * 12;
-		board->max_y    = board->ncolumns * 6;
+		board->max_x    = board->size * 12;
+		board->max_y    = board->size * 6;
 
 		drawBoard(board);
 		moveCursor(cursor_origin, cursor_destination, board);
@@ -157,14 +157,14 @@ int main (int argc, char *argv[]) {
 				}
 				break;
 			case KEY_DOWN:
-				if (cursor_origin[0] < board->ncolumns-1) {
+				if (cursor_origin[0] < board->size-1) {
 					cursor_destination[0] = cursor_origin[0] + 1;
 					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[0]      = cursor_destination[0];
 				}
 				break;
 			case KEY_RIGHT:
-				if (cursor_origin[1] < board->nrows-1) {
+				if (cursor_origin[1] < board->size-1) {
 					cursor_destination[1] = cursor_origin[1] + 1;
 					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[1]      = cursor_destination[1];
