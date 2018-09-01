@@ -7,7 +7,14 @@ typedef struct Board {
 	int nrows, ncolumns;
 	int max_x, max_y;
 	int current_player;
+	char **cells;
 } Board;
+
+void clearBoard (Board *board) {
+	for (int i = 0; i <  board->nrows; i++)
+		for (int j = 0; j < board->ncolumns; j++)
+			board->cells[i][j] = '\0';
+}
 
 void drawBoard(Board *board) {
 	int i, j, current_symbol;
@@ -81,6 +88,22 @@ void drawCell (int *destination, char letter, Board *board) {
 	attroff(COLOR_PAIR(1));
 }
 
+void placeCell (int *destination, Board *board) {
+	char current_symbol;
+
+	if (board->cells[destination[0]][destination[1]] == '\0') {
+		if (board->current_player == 1) {
+			current_symbol = 'X';
+		} else if (board->current_player == 2) {
+			current_symbol = 'O';
+		}
+
+		drawCell(destination, current_symbol, board);
+		board->cells[destination[0]][destination[1]] = current_symbol;
+		board->current_player = 1 + 2 - board->current_player; // toggle current player
+	}
+}
+
 void drawGameStats(Board *board) {
 	move(board->y, board->x + 14 * board->nrows);
 	printw("Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
@@ -91,8 +114,13 @@ int main (int argc, char *argv[]) {
 	int exit_game            = 0;
 	int cursor_origin[]      = {0, 0};
 	int cursor_destination[] = {0, 0};
-	Board *board          = malloc(sizeof(Board));
-	board->current_player = 1;
+	Board *board             = malloc(sizeof(Board));
+	board->nrows             = board->ncolumns = 3;
+	board->cells			 = malloc(sizeof(char *) * board->nrows);
+	for (int i = 0; i < board->nrows; i++)
+		board->cells[i] = malloc(sizeof(char) * board->ncolumns);
+	board->current_player    = 1;
+	clearBoard(board);
 
 	initscr();
 	noecho();
@@ -108,7 +136,6 @@ int main (int argc, char *argv[]) {
 		getmaxyx(stdscr, max_y, max_x);
 		board->x        = max_x / 2 - 20;
 		board->y        = max_y / 2 - 10;
-		board->nrows    = board->ncolumns = 3;
 		board->max_x    = board->nrows * 12;
 		board->max_y    = board->ncolumns * 6;
 
@@ -147,13 +174,7 @@ int main (int argc, char *argv[]) {
 				}
 				break;
 			case ' ':
-				if (board->current_player == 1) {
-					drawCell(cursor_destination, 'X', board);
-				} else if (board->current_player == 2) {
-					drawCell(cursor_destination, 'O', board);
-				}
-
-				board->current_player = 1 + 2 - board->current_player; // toggle current player
+				placeCell(cursor_destination, board);
 				break;
 			case 'q':
 				exit_game = 1;
