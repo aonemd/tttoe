@@ -109,8 +109,7 @@ void placeCell (int *destination, Board *board) {
 }
 
 void drawGameStats(Board *board) {
-	move(board->y, board->x + 14 * board->nrows);
-	printw(board->y, board->x + 14 * board->nrows, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
+	mvprintw(board->y, board->x + 14 * board->nrows, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
 	mvprintw(board->y + 2, board->x + 14 * board->nrows, "Moves: %d", board->nmoves_played);
 }
 
