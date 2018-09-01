@@ -106,6 +106,7 @@ int main (int argc, char *argv[]) {
 		board->max_y    = board->ncolumns * 6;
 
 		drawBoard(board);
+		moveCursor(cursor_origin, cursor_destination, board);
 
 		int keyPressed = getch();
 		switch (keyPressed) {
