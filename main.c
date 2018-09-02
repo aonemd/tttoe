@@ -66,12 +66,12 @@ void moveCursor (int *origin, int *destination, Board *board) {
 	int i, x, y;
 	attron(COLOR_PAIR(3));
 	for (i = 0; i <= 10; i++) {
-        y = board->max_y/board->size * origin[0] + board->y + 5;
-        x = board->max_x/board->size	 * origin[1] + board->x + 1 + i;
+		x = board->max_x/board->size * origin[0] + board->x + 1 + i;
+        y = board->max_y/board->size * origin[1] + board->y + 5;
         mvaddch(y, x, ' ');
 
-        y = board->max_y/board->size * destination[0] + board->y + 5;
-        x = board->max_x/board->size	 * destination[1] + board->x + 1 + i;
+        x = board->max_x/board->size * destination[0] + board->x + 1 + i;
+		y = board->max_y/board->size * destination[1] + board->y + 5;
         mvaddch(y, x, ACS_CKBOARD);
 
 		refresh();
@@ -82,8 +82,8 @@ void moveCursor (int *origin, int *destination, Board *board) {
 void drawCell (int *destination, char letter, Board *board) {
 	int x, y;
 
-	y = board->max_y/board->size * destination[0] + board->y + 3;
-	x = board->max_x/board->size	 * destination[1] + board->x + 6;
+	x = board->max_x/board->size * destination[0] + board->x + 6;
+	y = board->max_y/board->size * destination[1] + board->y + 3;
 
 	attron(COLOR_PAIR(1));
 	mvaddch(y, x, letter);
@@ -150,31 +150,31 @@ int main (int argc, char *argv[]) {
 		int keyPressed = getch();
 		switch (keyPressed) {
 			case KEY_UP:
-				if (cursor_origin[0] > 0) {
-					cursor_destination[0] = cursor_origin[0] - 1;
+				if (cursor_origin[1] > 0) {
+					cursor_destination[1] = cursor_origin[1] - 1;
 					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[0]      = cursor_destination[0];
+					cursor_origin[1]      = cursor_destination[1];
 				}
 				break;
 			case KEY_DOWN:
-				if (cursor_origin[0] < board->size-1) {
-					cursor_destination[0] = cursor_origin[0] + 1;
-					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[0]      = cursor_destination[0];
-				}
-				break;
-			case KEY_RIGHT:
 				if (cursor_origin[1] < board->size-1) {
 					cursor_destination[1] = cursor_origin[1] + 1;
 					moveCursor(cursor_origin, cursor_destination, board);
 					cursor_origin[1]      = cursor_destination[1];
 				}
 				break;
-			case KEY_LEFT:
-				if (cursor_origin[1] > 0) {
-					cursor_destination[1] = cursor_origin[1] - 1;
+			case KEY_RIGHT:
+				if (cursor_origin[0] < board->size-1) {
+					cursor_destination[0] = cursor_origin[0] + 1;
 					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[1]      = cursor_destination[1];
+					cursor_origin[0]      = cursor_destination[0];
+				}
+				break;
+			case KEY_LEFT:
+				if (cursor_origin[0] > 0) {
+					cursor_destination[0] = cursor_origin[0] - 1;
+					moveCursor(cursor_origin, cursor_destination, board);
+					cursor_origin[0]      = cursor_destination[0];
 				}
 				break;
 			case ' ':
