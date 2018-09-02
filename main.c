@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <ncurses.h>
 
 typedef struct Board {
@@ -7,7 +8,9 @@ typedef struct Board {
 	int size;
 	int max_x, max_y;
 	int current_player;
+	int last_player;
 	int nmoves_played;
+	char last_cell_symbol;
 	char **cells;
 } Board;
 
@@ -104,13 +107,62 @@ void placeCell (int *destination, Board *board) {
 		drawCell(destination, current_symbol, board);
 		board->cells[destination[0]][destination[1]] = current_symbol;
 		board->nmoves_played++;
-		board->current_player = 1 + 2 - board->current_player; // toggle current player
+		board->last_cell_symbol = current_symbol;
+		board->last_player      = board->current_player;
+		board->current_player   = 1 + 2 - board->current_player; // toggle current player
 	}
 }
 
 void drawGameStats(Board *board) {
 	mvprintw(board->y, board->x + 14 * board->size, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
 	mvprintw(board->y + 2, board->x + 14 * board->size, "Moves: %d", board->nmoves_played);
+}
+
+void checkGameOver (int *destination, Board *board) {
+	// columns
+	for(int i = 0; i < board->size; i++){
+		if(board->cells[destination[0]][i] != board->last_cell_symbol)
+			break;
+		if(i == board->size - 1){
+			mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+		}
+	}
+
+	// rows
+	for(int i = 0; i < board->size; i++){
+		if(board->cells[i][destination[1]] != board->last_cell_symbol)
+			break;
+		if(i == board->size - 1){
+			mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+		}
+	}
+
+	// diagonal
+	if(destination[0] == destination[1]){
+		for(int i = 0; i < board->size; i++){
+			if(board->cells[i][i] != board->last_cell_symbol)
+				break;
+			if(i == board->size - 1){
+				mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+			}
+		}
+	}
+
+	// anti diagonal
+	if(destination[0] + destination[1] == board->size - 1){
+		for(int i = 0; i < board->size; i++){
+			if(board->cells[i][(board->size-1)-i] != board->last_cell_symbol)
+				break;
+			if(i == board->size - 1){
+				mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+			}
+		}
+	}
+
+	// draw
+	if (board->nmoves_played == (pow(board->size, 2) - 1)) {
+		mvprintw(board->y + 4, board->x + 14 * board->size, "Draw, Nobody Wins!");
+	}
 }
 
 int main (int argc, char *argv[]) {
@@ -121,6 +173,8 @@ int main (int argc, char *argv[]) {
 	Board *board             = malloc(sizeof(Board));
 	board->size              = 3;
 	board->current_player    = 1;
+	board->last_player		 = 1;
+	board->last_cell_symbol  = '\0';
 	board->cells             = malloc(sizeof(char *) * board->size);
 	for (int i = 0; i < board->size; i++)
 		board->cells[i] = malloc(sizeof(char) * board->size);
@@ -179,6 +233,7 @@ int main (int argc, char *argv[]) {
 				break;
 			case ' ':
 				placeCell(cursor_destination, board);
+				checkGameOver(cursor_destination, board);
 				break;
 			case 'q':
 				exit_game = 1;
