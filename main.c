@@ -88,10 +88,15 @@ void drawCell (int *destination, char letter, Board *board) {
 	x = board->max_x/board->size * destination[0] + board->x + 6;
 	y = board->max_y/board->size * destination[1] + board->y + 3;
 
-	attron(COLOR_PAIR(1));
-	mvaddch(y, x, letter);
-	refresh();
-	attroff(COLOR_PAIR(1));
+	if (letter == 'X') {
+		attron(COLOR_PAIR(1));
+		mvaddch(y, x, letter);
+		attroff(COLOR_PAIR(1));
+	} else {
+		attron(COLOR_PAIR(2));
+		mvaddch(y, x, letter);
+		attroff(COLOR_PAIR(2));
+	}
 }
 
 void placeCell (int *destination, Board *board) {
