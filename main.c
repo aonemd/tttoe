@@ -166,7 +166,7 @@ void checkGameOver (int *destination, Board *board) {
 
 	// draw
 	if (board->nmoves_played == (pow(board->size, 2) - 1)) {
-		mvprintw(board->y + 4, board->x + 14 * board->size, "Draw, Nobody Wins!");
+		mvprintw(board->y + 4, board->x + 14 * board->size, "Draw!! Nobody Wins.");
 	}
 }
 
