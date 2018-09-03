@@ -176,7 +176,7 @@ int main (int argc, char *argv[]) {
 	int cursor_origin[]      = {0, 0};
 	int cursor_destination[] = {0, 0};
 	Board *board             = malloc(sizeof(Board));
-	board->size              = 3;
+	board->size              = argv[1] ? strtol(argv[1], NULL, 10) : 3;
 	board->current_player    = 1;
 	board->last_player		 = 1;
 	board->last_cell_symbol  = '\0';
