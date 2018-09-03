@@ -10,6 +10,7 @@ typedef struct Board {
 	int current_player;
 	int last_player;
 	int nmoves_played;
+	int multi_player;
 	char last_cell_symbol;
 	char **cells;
 } Board;
@@ -118,6 +119,28 @@ void placeCell (int *destination, Board *board) {
 	}
 }
 
+int * placeCellRandom (Board *board) {
+	int x, y;
+	do {
+		x = (rand() % (board->size-1 + 1 - 0)) + 0;
+		y = (rand() % (board->size-1 + 1 - 0)) + 0;
+	}
+	while (board->cells[x][y] != '\0');
+
+	int * destination = malloc(sizeof(int) * 2);
+	destination[0] = x;
+	destination[1] = y;
+
+	drawCell(destination, 'O', board);
+	board->cells[x][y] = 'O';
+	board->nmoves_played++;
+	board->last_cell_symbol = 'O';
+	board->last_player      = board->current_player;
+	board->current_player   = 1 + 2 - board->current_player; // toggle current player
+
+	return destination;
+}
+
 void drawGameStats(Board *board) {
 	mvprintw(board->y, board->x + 14 * board->size, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
 	mvprintw(board->y + 2, board->x + 14 * board->size, "Moves: %d", board->nmoves_played);
@@ -177,6 +200,7 @@ int main (int argc, char *argv[]) {
 	int cursor_destination[] = {0, 0};
 	Board *board             = malloc(sizeof(Board));
 	board->size              = argv[1] ? strtol(argv[1], NULL, 10) : 3;
+	board->multi_player		 = argv[2] ? strtol(argv[2], NULL, 10) : 1;
 	board->current_player    = 1;
 	board->last_player		 = 1;
 	board->last_cell_symbol  = '\0';
@@ -239,6 +263,9 @@ int main (int argc, char *argv[]) {
 			case ' ':
 				placeCell(cursor_destination, board);
 				checkGameOver(cursor_destination, board);
+				if (!board->multi_player) {
+					checkGameOver(placeCellRandom(board), board);
+				}
 				break;
 			case 'q':
 				exit_game = 1;
