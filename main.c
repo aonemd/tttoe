@@ -146,49 +146,65 @@ void drawGameStats(Board *board) {
 	mvprintw(board->y + 2, board->x + 14 * board->size, "Moves: %d", board->nmoves_played);
 }
 
-void checkGameOver (int *destination, Board *board) {
+int isWinning (int *last_destination, char symbol, Board *board) {
 	// columns
 	for(int i = 0; i < board->size; i++){
-		if(board->cells[destination[0]][i] != board->last_cell_symbol)
+		if(board->cells[last_destination[0]][i] != symbol)
 			break;
 		if(i == board->size - 1){
-			mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+			return 1;
 		}
 	}
 
 	// rows
 	for(int i = 0; i < board->size; i++){
-		if(board->cells[i][destination[1]] != board->last_cell_symbol)
+		if(board->cells[i][last_destination[1]] != symbol)
 			break;
 		if(i == board->size - 1){
-			mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+			return 1;
 		}
 	}
 
 	// diagonal
-	if(destination[0] == destination[1]){
+	if(last_destination[0] == last_destination[1]){
 		for(int i = 0; i < board->size; i++){
-			if(board->cells[i][i] != board->last_cell_symbol)
+			if(board->cells[i][i] != symbol)
 				break;
 			if(i == board->size - 1){
-				mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+				return 1;
 			}
 		}
 	}
 
 	// anti diagonal
-	if(destination[0] + destination[1] == board->size - 1){
+	if(last_destination[0] + last_destination[1] == board->size - 1){
 		for(int i = 0; i < board->size; i++){
-			if(board->cells[i][(board->size-1)-i] != board->last_cell_symbol)
+			if(board->cells[i][(board->size-1)-i] != symbol)
 				break;
 			if(i == board->size - 1){
-				mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+				return 1;
 			}
 		}
 	}
 
+	return 0;
+}
+
+int isDraw (int *destination, Board *board) {
 	// draw
 	if (board->nmoves_played == (pow(board->size, 2) - 1)) {
+		return 1;
+	}
+
+	return 0;
+}
+
+void gameOver (int *destination, Board *board) {
+	if (isWinning(destination, board->last_cell_symbol, board)) {
+		mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+	}
+
+	if (isDraw(destination, board)) {
 		mvprintw(board->y + 4, board->x + 14 * board->size, "Draw!! Nobody Wins.");
 	}
 }
@@ -262,9 +278,9 @@ int main (int argc, char *argv[]) {
 				break;
 			case ' ':
 				placeCell(cursor_destination, board);
-				checkGameOver(cursor_destination, board);
+				gameOver(cursor_destination, board);
 				if (!board->multi_player) {
-					checkGameOver(placeCellRandom(board), board);
+					gameOver(placeCellRandom(board), board);
 				}
 				break;
 			case 'q':
