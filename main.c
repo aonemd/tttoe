@@ -3,10 +3,14 @@
 #include <math.h>
 #include <ncurses.h>
 
+typedef struct Point {
+	unsigned int x, y;
+} Point;
+
 typedef struct Board {
-	int x, y;
+	Point location;
+	Point boundary;
 	int size;
-	int max_x, max_y;
 	int current_player;
 	int last_player;
 	int nmoves_played;
@@ -23,59 +27,77 @@ void clearBoard (Board *board) {
 	board->nmoves_played = 0;
 }
 
-void drawBoard(Board *board) {
+Board *newBoard (int size, int mode) {
+	Board *board = malloc(sizeof(Board));
+	board->size             = size;
+	board->multi_player     = mode;
+	board->current_player   = 1;
+	board->last_player      = 1;
+	board->last_cell_symbol = '\0';
+	board->cells            = malloc(sizeof(char *) * board->size);
+	for (int i = 0; i < board->size; i++)
+		board->cells[i] = malloc(sizeof(char) * board->size);
+
+	clearBoard(board);
+
+	board->nmoves_played = 0;
+
+	return board;
+}
+
+void drawBoard(Point location, Point boundary, int size) {
 	int i, j, current_symbol;
-	for (i = 0; i <= board->max_y; i++) {
-		for (j = 0; j <= board->max_x; j++) {
+	for (i = 0; i <= boundary.y; i++) {
+		for (j = 0; j <= boundary.x; j++) {
 			if (i == 0) {
 				if (j == 0)
 					current_symbol = ACS_ULCORNER;
-				else if (j == board->max_x)
+				else if (j == boundary.x)
 					current_symbol = ACS_URCORNER;
-				else if (j % (board->max_x / board->size) == 0)
+				else if (j % (boundary.x / size) == 0)
 					current_symbol = ACS_TTEE;
 				else
 					current_symbol = ACS_HLINE;
-				mvaddch(board->y+i, board->x+j, current_symbol);
-			} else if (i % (board->max_y / board->size) == 0 && i != board->max_y) {
+				mvaddch(location.y+i, location.x+j, current_symbol);
+			} else if (i % (boundary.y / size) == 0 && i != boundary.y) {
 				if (j == 0)
 					current_symbol = ACS_LTEE;
-				else if (j == board->max_x)
+				else if (j == boundary.x)
 					current_symbol = ACS_RTEE;
-				else if (j % (board->max_x / board->size) == 0)
+				else if (j % (boundary.x / size) == 0)
 					current_symbol = ACS_PLUS;
 				else
 					current_symbol = ACS_HLINE;
-				mvaddch(board->y+i, board->x+j, current_symbol);
-			} else if (i == board->max_y) {
+				mvaddch(location.y+i, location.x+j, current_symbol);
+			} else if (i == boundary.y) {
 				if (j == 0)
 					current_symbol = ACS_LLCORNER;
-				else if (j == board->max_x)
+				else if (j == boundary.x)
 					current_symbol = ACS_LRCORNER;
-				else if (j % (board->max_x / board->size) == 0)
+				else if (j % (boundary.x / size) == 0)
 					current_symbol = ACS_BTEE;
 				else
 					current_symbol = ACS_HLINE;
-				mvaddch(board->y+i, board->x+j, current_symbol);
-			} else if (j % (board->max_x / board->size) == 0) {
+				mvaddch(location.y+i, location.x+j, current_symbol);
+			} else if (j % (boundary.x / size) == 0) {
 				current_symbol = ACS_VLINE;
-				mvaddch(board->y+i, board->x+j, current_symbol);
+				mvaddch(location.y+i, location.x+j, current_symbol);
 			}
 		}
 	}
 	refresh();
 }
 
-void moveCursor (int *origin, int *destination, Board *board) {
+void moveCursor (Point origin, Point destination, Point board_location, Point board_boundary, int size) {
 	int i, x, y;
 	attron(COLOR_PAIR(3));
 	for (i = 0; i <= 10; i++) {
-		x = board->max_x/board->size * origin[0] + board->x + 1 + i;
-        y = board->max_y/board->size * origin[1] + board->y + 5;
+		x = board_boundary.x/size * origin.x + board_location.x + 1 + i;
+        y = board_boundary.y/size * origin.y + board_location.y + 5;
         mvaddch(y, x, ' ');
 
-        x = board->max_x/board->size * destination[0] + board->x + 1 + i;
-		y = board->max_y/board->size * destination[1] + board->y + 5;
+		x = board_boundary.x/size * destination.x + board_location.x + 1 + i;
+        y = board_boundary.y/size * destination.y + board_location.y + 5;
         mvaddch(y, x, ACS_CKBOARD);
 
 		refresh();
@@ -83,35 +105,35 @@ void moveCursor (int *origin, int *destination, Board *board) {
 	attroff(COLOR_PAIR(3));
 }
 
-void drawCell (int *destination, char letter, Board *board) {
-	int x, y;
-
-	x = board->max_x/board->size * destination[0] + board->x + 6;
-	y = board->max_y/board->size * destination[1] + board->y + 3;
-
-	if (letter == 'X') {
+void drawCell (Point destination, char symbol) {
+	if (symbol == 'X') {
 		attron(COLOR_PAIR(1));
-		mvaddch(y, x, letter);
+		mvaddch(destination.y, destination.x, symbol);
 		attroff(COLOR_PAIR(1));
 	} else {
 		attron(COLOR_PAIR(2));
-		mvaddch(y, x, letter);
+		mvaddch(destination.y, destination.x, symbol);
 		attroff(COLOR_PAIR(2));
 	}
 }
 
-void placeCell (int *destination, Board *board) {
+void placeCell (Point destination, Board *board) {
 	char current_symbol;
 
-	if (board->cells[destination[0]][destination[1]] == '\0') {
+	if (board->cells[destination.x][destination.y] == '\0') {
 		if (board->current_player == 1) {
 			current_symbol = 'X';
 		} else if (board->current_player == 2) {
 			current_symbol = 'O';
 		}
 
-		drawCell(destination, current_symbol, board);
-		board->cells[destination[0]][destination[1]] = current_symbol;
+		Point cell_location = (Point) {
+			.x = board->boundary.x/board->size * destination.x + board->location.x + 6,
+			.y = board->boundary.y/board->size * destination.y + board->location.y + 3
+		};
+
+		drawCell(cell_location, current_symbol);
+		board->cells[destination.x][destination.y] = current_symbol;
 		board->nmoves_played++;
 		board->last_cell_symbol = current_symbol;
 		board->last_player      = board->current_player;
@@ -119,37 +141,33 @@ void placeCell (int *destination, Board *board) {
 	}
 }
 
-int * placeCellRandom (Board *board) {
+Point placeCellRandom (Board *board) {
 	int x, y;
 	do {
-		x = (rand() % (board->size-1 + 1 - 0)) + 0;
-		y = (rand() % (board->size-1 + 1 - 0)) + 0;
+		x = ((int) rand() % (board->size-1 + 1 - 0)) + 0;
+		y = ((int) rand() % (board->size-1 + 1 - 0)) + 0;
 	}
 	while (board->cells[x][y] != '\0');
 
-	int * destination = malloc(sizeof(int) * 2);
-	destination[0] = x;
-	destination[1] = y;
+	Point destination = (Point) {
+		.x = x,
+		.y = y
+	};
 
-	drawCell(destination, 'O', board);
-	board->cells[x][y] = 'O';
-	board->nmoves_played++;
-	board->last_cell_symbol = 'O';
-	board->last_player      = board->current_player;
-	board->current_player   = 1 + 2 - board->current_player; // toggle current player
+	placeCell(destination, board);
 
 	return destination;
 }
 
-void drawGameStats(Board *board) {
-	mvprintw(board->y, board->x + 14 * board->size, "Player: %d (plays %c)", board->current_player, board->current_player == 1 ? 'X' : 'O');
-	mvprintw(board->y + 2, board->x + 14 * board->size, "Moves: %d", board->nmoves_played);
+void drawGameStats(Point board_location, int board_size, int game_moves, int current_player) {
+	mvprintw(board_location.y, board_location.x + 14 * board_size, "Player: %d (plays %c)", current_player, current_player == 1 ? 'X' : 'O');
+	mvprintw(board_location.y + 2, board_location.x + 14 * board_size, "Moves: %d", game_moves);
 }
 
-int isWinning (int *last_destination, char symbol, Board *board) {
+int isWinning (Point last_destination, char symbol, Board *board) {
 	// columns
 	for(int i = 0; i < board->size; i++){
-		if(board->cells[last_destination[0]][i] != symbol)
+		if(board->cells[last_destination.x][i] != symbol)
 			break;
 		if(i == board->size - 1){
 			return 1;
@@ -158,7 +176,7 @@ int isWinning (int *last_destination, char symbol, Board *board) {
 
 	// rows
 	for(int i = 0; i < board->size; i++){
-		if(board->cells[i][last_destination[1]] != symbol)
+		if(board->cells[i][last_destination.y] != symbol)
 			break;
 		if(i == board->size - 1){
 			return 1;
@@ -166,7 +184,7 @@ int isWinning (int *last_destination, char symbol, Board *board) {
 	}
 
 	// diagonal
-	if(last_destination[0] == last_destination[1]){
+	if(last_destination.x == last_destination.y){
 		for(int i = 0; i < board->size; i++){
 			if(board->cells[i][i] != symbol)
 				break;
@@ -177,7 +195,7 @@ int isWinning (int *last_destination, char symbol, Board *board) {
 	}
 
 	// anti diagonal
-	if(last_destination[0] + last_destination[1] == board->size - 1){
+	if(last_destination.x + last_destination.y == board->size - 1){
 		for(int i = 0; i < board->size; i++){
 			if(board->cells[i][(board->size-1)-i] != symbol)
 				break;
@@ -190,8 +208,7 @@ int isWinning (int *last_destination, char symbol, Board *board) {
 	return 0;
 }
 
-int isDraw (int *destination, Board *board) {
-	// draw
+int isDraw (Board *board) {
 	if (board->nmoves_played == (pow(board->size, 2) - 1)) {
 		return 1;
 	}
@@ -199,31 +216,24 @@ int isDraw (int *destination, Board *board) {
 	return 0;
 }
 
-void gameOver (int *destination, Board *board) {
-	if (isWinning(destination, board->last_cell_symbol, board)) {
-		mvprintw(board->y + 4, board->x + 14 * board->size, "Player %d Wins!", board->last_player);
+void gameOver (Point last_destination, Board *board) {
+	if (isWinning(last_destination, board->last_cell_symbol, board)) {
+		mvprintw(board->location.y + 4, board->location.x + 14 * board->size, "Player %d Wins!", board->last_player);
 	}
 
-	if (isDraw(destination, board)) {
-		mvprintw(board->y + 4, board->x + 14 * board->size, "Draw!! Nobody Wins.");
+	if (isDraw(board)) {
+		mvprintw(board->location.y + 4, board->location.x + 14 * board->size, "Draw!! Nobody Wins.");
 	}
 }
 
 int main (int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
-	int cursor_origin[]      = {0, 0};
-	int cursor_destination[] = {0, 0};
-	Board *board             = malloc(sizeof(Board));
-	board->size              = argv[1] ? strtol(argv[1], NULL, 10) : 3;
-	board->multi_player		 = argv[2] ? strtol(argv[2], NULL, 10) : 1;
-	board->current_player    = 1;
-	board->last_player		 = 1;
-	board->last_cell_symbol  = '\0';
-	board->cells             = malloc(sizeof(char *) * board->size);
-	for (int i = 0; i < board->size; i++)
-		board->cells[i] = malloc(sizeof(char) * board->size);
-	clearBoard(board);
+	int board_size           = argv[1] ? strtol(argv[1], NULL, 10) : 3;
+	int game_mode            = argv[2] ? strtol(argv[2], NULL, 10) : 1;
+	Point cursor_origin      = (Point) { .x = 0, .y = 0 };
+	Point cursor_destination = (Point) { .x = 0, .y = 0 };
+	Board *board             = newBoard(board_size, game_mode);
 
 	initscr();
 	noecho();
@@ -237,43 +247,41 @@ int main (int argc, char *argv[]) {
 
 	while (!exit_game) {
 		getmaxyx(stdscr, max_y, max_x);
-		board->x        = max_x / 2 - 20;
-		board->y        = max_y / 2 - 10;
-		board->max_x    = board->size * 12;
-		board->max_y    = board->size * 6;
+		board->location = (Point) { .x = max_x / 2 - 20, .y = max_y / 2 - 10 };
+		board->boundary = (Point) { .x = board->size * 12, .y = board->size * 6 };
 
-		drawBoard(board);
-		moveCursor(cursor_origin, cursor_destination, board);
-		drawGameStats(board);
+		drawBoard(board->location, board->boundary, board->size);
+		moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+		drawGameStats(board->location, board->size, board->nmoves_played, board->current_player);
 
 		int keyPressed = getch();
 		switch (keyPressed) {
 			case KEY_UP:
-				if (cursor_origin[1] > 0) {
-					cursor_destination[1] = cursor_origin[1] - 1;
-					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[1]      = cursor_destination[1];
+				if (cursor_origin.y > 0) {
+					cursor_destination.y = cursor_origin.y - 1;
+					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					cursor_origin.y      = cursor_destination.y;
 				}
 				break;
 			case KEY_DOWN:
-				if (cursor_origin[1] < board->size-1) {
-					cursor_destination[1] = cursor_origin[1] + 1;
-					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[1]      = cursor_destination[1];
+				if (cursor_origin.y < board->size-1) {
+					cursor_destination.y = cursor_origin.y + 1;
+					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					cursor_origin.y      = cursor_destination.y;
 				}
 				break;
 			case KEY_RIGHT:
-				if (cursor_origin[0] < board->size-1) {
-					cursor_destination[0] = cursor_origin[0] + 1;
-					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[0]      = cursor_destination[0];
+				if (cursor_origin.x < board->size-1) {
+					cursor_destination.x = cursor_origin.x + 1;
+					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					cursor_origin.x      = cursor_destination.x;
 				}
 				break;
 			case KEY_LEFT:
-				if (cursor_origin[0] > 0) {
-					cursor_destination[0] = cursor_origin[0] - 1;
-					moveCursor(cursor_origin, cursor_destination, board);
-					cursor_origin[0]      = cursor_destination[0];
+				if (cursor_origin.x > 0) {
+					cursor_destination.x = cursor_origin.x - 1;
+					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					cursor_origin.x      = cursor_destination.x;
 				}
 				break;
 			case ' ':
