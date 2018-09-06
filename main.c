@@ -14,7 +14,7 @@ typedef struct Board {
 	int current_player;
 	int last_player;
 	int nmoves_played;
-	int multi_player;
+	int ai_mode;
 	char last_cell_symbol;
 	char **cells;
 } Board;
@@ -30,7 +30,7 @@ void clearBoard (Board *board) {
 Board *newBoard (int size, int mode) {
 	Board *board = malloc(sizeof(Board));
 	board->size             = size;
-	board->multi_player     = mode;
+	board->ai_mode          = mode;
 	board->current_player   = 1;
 	board->last_player      = 1;
 	board->last_cell_symbol = '\0';
@@ -230,7 +230,7 @@ int main (int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
 	int board_size           = argv[1] ? strtol(argv[1], NULL, 10) : 3;
-	int game_mode            = argv[2] ? strtol(argv[2], NULL, 10) : 1;
+	int game_mode            = argv[2] ? strtol(argv[2], NULL, 10) : 0;
 	Point cursor_origin      = (Point) { .x = 0, .y = 0 };
 	Point cursor_destination = (Point) { .x = 0, .y = 0 };
 	Board *board             = newBoard(board_size, game_mode);
@@ -287,7 +287,7 @@ int main (int argc, char *argv[]) {
 			case ' ':
 				placeCell(cursor_destination, board);
 				gameOver(cursor_destination, board);
-				if (!board->multi_player) {
+				if (board->ai_mode) {
 					gameOver(placeCellRandom(board), board);
 				}
 				break;
