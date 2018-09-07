@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include <ncurses.h>
 
 typedef struct Point {
@@ -18,6 +19,20 @@ typedef struct Board {
 	char last_cell_symbol;
 	char **cells;
 } Board;
+
+typedef struct MiniMaxRes {
+	int score;
+	int i;
+	int j;
+} MiniMaxRes;
+
+/* void arrayAppend(MiniMaxRes move, MiniMaxRes *moves) { */
+/* 	int len = sizeof(moves) / sizeof(*moves); */
+/*  */
+/* 	for (int i = 0; i < len; i++) { */
+/* 		 */
+/* 	} */
+/* } */
 
 void clearBoard (Board *board) {
 	for (int i = 0; i <  board->size; i++)
@@ -226,6 +241,85 @@ void gameOver (Point last_destination, Board *board) {
 	}
 }
 
+MiniMaxRes minimax (Point last_destination, char player, Board *board) {
+  /* MiniMaxRes *moves = malloc(sizeof(MiniMaxRes) * board->size * board->size); */
+  /* size_t moves_size = 0; */
+  /*  */
+  /* MiniMaxRes move = (MiniMaxRes) { .i = 1, .j = 2 }; */
+  /* move.score = 1; */
+  /*  */
+  /* moves[moves_size++] = move; */
+  /* #<{(| move.i = 1; |)}># */
+  /* #<{(| move.j = 2; |)}># */
+  /* return move; */
+
+	if (isWinning(last_destination, 'X', board)) {
+		return (MiniMaxRes) { .score = -10 };
+	} else if (isWinning(last_destination, 'O', board)) {
+		return (MiniMaxRes) { .score = 10 };
+	} else if (isDraw(board)) {
+		return (MiniMaxRes) { .score = 0 };
+	}
+
+	/* char **newCells; */
+	/* int len = sizeof(board->cells)/sizeof(*board->cells); */
+	/* memcpy(newCells, board->cells, len * (sizeof(char))); */
+
+  MiniMaxRes *moves = malloc(sizeof(MiniMaxRes) * board->size * board->size);
+	size_t moves_size = 0;
+
+	for (int i = 0; i < board->size; i++) {
+		for (int j = 0; j < board->size; j++) {
+			if (board->cells[i][j] == '\0') {
+				MiniMaxRes move;
+				move.i = i;
+				move.j = j;
+
+				board->cells[i][j] = player;
+
+				if (player == 'O') {
+					MiniMaxRes mmres = minimax(last_destination, 'O', board);
+					move.score = mmres.score;
+				} else if (player == 'X') {
+					MiniMaxRes mmres = minimax(last_destination, 'X', board);
+					move.score = mmres.score;
+				}
+
+				// reset the board to what it was
+				board->cells[i][j] = '\0';
+
+				moves[moves_size++] = move;
+				/* arrayAppend(move, moPves); */
+			}
+		}
+	}
+
+  for (int i = 0; i < moves_size; i++) {
+    mvprintw(1+i, 1, "%d %d %d", moves[i].score, moves[i].i, moves[i].j);
+  }
+
+	int best_move_idx;
+	if (player == 'O') {
+		int best_score = -10000;
+		for (int i = 0; i < moves_size; i++) {
+			if (moves[i].score > best_score) {
+				best_score = moves[i].score;
+				best_move_idx = i;
+			}
+		}
+	} else {
+		int best_score = 10000;
+		for (int i = 0; i < moves_size; i++) {
+			if (moves[i].score < best_score) {
+				best_score = moves[i].score;
+				best_move_idx = i;
+			}
+		}
+	}
+
+	return moves[best_move_idx];
+}
+
 int main (int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
@@ -288,7 +382,11 @@ int main (int argc, char *argv[]) {
 				placeCell(cursor_destination, board);
 				gameOver(cursor_destination, board);
 				if (board->ai_mode) {
-					gameOver(placeCellRandom(board), board);
+          MiniMaxRes mmres = minimax(cursor_destination, 'O', board);
+          Point new_dest = (Point) { .x = mmres.i, .y = mmres.j };
+          /* mvprintw(1, 2, "%d %d %d", mmres.score, mmres.i, mmres.j); */
+          placeCell(new_dest, board);
+					gameOver(new_dest, board);
 				}
 				break;
 			case 'q':
