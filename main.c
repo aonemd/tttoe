@@ -26,14 +26,6 @@ typedef struct MiniMaxRes {
 	int j;
 } MiniMaxRes;
 
-/* void arrayAppend(MiniMaxRes move, MiniMaxRes *moves) { */
-/* 	int len = sizeof(moves) / sizeof(*moves); */
-/*  */
-/* 	for (int i = 0; i < len; i++) { */
-/* 		 */
-/* 	} */
-/* } */
-
 void clearBoard (Board *board) {
 	for (int i = 0; i <  board->size; i++)
 		for (int j = 0; j < board->size; j++)
@@ -242,17 +234,6 @@ void gameOver (Point last_destination, Board *board) {
 }
 
 MiniMaxRes minimax (Point last_destination, char player, Board *board) {
-  /* MiniMaxRes *moves = malloc(sizeof(MiniMaxRes) * board->size * board->size); */
-  /* size_t moves_size = 0; */
-  /*  */
-  /* MiniMaxRes move = (MiniMaxRes) { .i = 1, .j = 2 }; */
-  /* move.score = 1; */
-  /*  */
-  /* moves[moves_size++] = move; */
-  /* #<{(| move.i = 1; |)}># */
-  /* #<{(| move.j = 2; |)}># */
-  /* return move; */
-
 	if (isWinning(last_destination, 'X', board)) {
 		return (MiniMaxRes) { .score = -10 };
 	} else if (isWinning(last_destination, 'O', board)) {
@@ -261,11 +242,7 @@ MiniMaxRes minimax (Point last_destination, char player, Board *board) {
 		return (MiniMaxRes) { .score = 0 };
 	}
 
-	/* char **newCells; */
-	/* int len = sizeof(board->cells)/sizeof(*board->cells); */
-	/* memcpy(newCells, board->cells, len * (sizeof(char))); */
-
-  MiniMaxRes *moves = malloc(sizeof(MiniMaxRes) * board->size * board->size);
+  MiniMaxRes *moves = malloc(sizeof(MiniMaxRes *) * board->size * board->size);
 	size_t moves_size = 0;
 
 	for (int i = 0; i < board->size; i++) {
@@ -289,14 +266,10 @@ MiniMaxRes minimax (Point last_destination, char player, Board *board) {
 				board->cells[i][j] = '\0';
 
 				moves[moves_size++] = move;
-				/* arrayAppend(move, moPves); */
+
 			}
 		}
 	}
-
-  for (int i = 0; i < moves_size; i++) {
-    mvprintw(1+i, 1, "%d %d %d", moves[i].score, moves[i].i, moves[i].j);
-  }
 
 	int best_move_idx;
 	if (player == 'O') {
