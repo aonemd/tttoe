@@ -5,7 +5,7 @@
 #include <ncurses.h>
 
 typedef struct Point {
-	unsigned int x, y;
+	int x, y;
 } Point;
 
 typedef struct Board {
