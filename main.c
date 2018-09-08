@@ -100,12 +100,12 @@ void move_cursor(Point origin, Point destination, Point board_location, Point bo
 	attron(COLOR_PAIR(3));
 	for (i = 0; i <= 10; i++) {
 		x = board_boundary.x/size * origin.x + board_location.x + 1 + i;
-        y = board_boundary.y/size * origin.y + board_location.y + 5;
-        mvaddch(y, x, ' ');
+		y = board_boundary.y/size * origin.y + board_location.y + 5;
+		mvaddch(y, x, ' ');
 
 		x = board_boundary.x/size * destination.x + board_location.x + 1 + i;
-        y = board_boundary.y/size * destination.y + board_location.y + 5;
-        mvaddch(y, x, ACS_CKBOARD);
+		y = board_boundary.y/size * destination.y + board_location.y + 5;
+		mvaddch(y, x, ACS_CKBOARD);
 
 		refresh();
 	}
@@ -136,7 +136,7 @@ void placeCell(Point destination, Board *board) {
 
 		Point cell_location = (Point) {
 			.x = board->boundary.x/board->size * destination.x + board->location.x + 6,
-			.y = board->boundary.y/board->size * destination.y + board->location.y + 3
+				.y = board->boundary.y/board->size * destination.y + board->location.y + 3
 		};
 
 		draw_cell(cell_location, current_symbol);
@@ -242,7 +242,7 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 		return (MiniMaxRes) { .score = 0 };
 	}
 
-  MiniMaxRes *moves = malloc(sizeof(MiniMaxRes *) * board->size * board->size);
+	MiniMaxRes *moves = malloc(sizeof(MiniMaxRes *) * board->size * board->size);
 	size_t moves_size = 0;
 
 	for (int i = 0; i < board->size; i++) {
@@ -254,7 +254,7 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 
 				board->cells[i][j] = player;
 
-        // caclulate the score for the opponent
+				// caclulate the score for the opponent
 				if (player == 'O') {
 					MiniMaxRes mmres = minimax(last_destination, 'X', board);
 					move.score = mmres.score;
@@ -306,12 +306,12 @@ int main(int argc, char *argv[]) {
 	initscr();
 	noecho();
 	curs_set(FALSE);
-    keypad(stdscr, TRUE);
-    start_color();
+	keypad(stdscr, TRUE);
+	start_color();
 
-    init_pair(1, COLOR_BLUE, COLOR_BLACK);  // player 1
-    init_pair(2, COLOR_RED, COLOR_BLACK);   // player 2
-    init_pair(3, COLOR_WHITE, COLOR_BLACK); // cursor
+	init_pair(1, COLOR_BLUE, COLOR_BLACK);  // player 1
+	init_pair(2, COLOR_RED, COLOR_BLACK);   // player 2
+	init_pair(3, COLOR_WHITE, COLOR_BLACK); // cursor
 
 	while (!exit_game) {
 		getmaxyx(stdscr, max_y, max_x);
@@ -356,10 +356,9 @@ int main(int argc, char *argv[]) {
 				placeCell(cursor_destination, board);
 				is_game_over(cursor_destination, board);
 				if (board->ai_mode) {
-          MiniMaxRes mmres = minimax(cursor_destination, 'O', board);
-          Point new_dest = (Point) { .x = mmres.i, .y = mmres.j };
-          /* mvprintw(1, 2, "%d %d %d", mmres.score, mmres.i, mmres.j); */
-          placeCell(new_dest, board);
+					MiniMaxRes mmres = minimax(cursor_destination, 'O', board);
+					Point new_dest   = (Point) { .x = mmres.i, .y = mmres.j };
+					placeCell(new_dest, board);
 					is_game_over(new_dest, board);
 				}
 				break;
@@ -369,8 +368,8 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-  resetty();
-  endwin();
+	resetty();
+	endwin();
 
 	return 0;
 }
