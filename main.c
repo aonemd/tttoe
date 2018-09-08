@@ -26,7 +26,7 @@ typedef struct MiniMaxRes {
 	int j;
 } MiniMaxRes;
 
-void clearBoard (Board *board) {
+void clear_board(Board *board) {
 	for (int i = 0; i <  board->size; i++)
 		for (int j = 0; j < board->size; j++)
 			board->cells[i][j] = '\0';
@@ -34,7 +34,7 @@ void clearBoard (Board *board) {
 	board->nmoves_played = 0;
 }
 
-Board *newBoard (int size, int mode) {
+Board *new_board(int size, int mode) {
 	Board *board = malloc(sizeof(Board));
 	board->size             = size;
 	board->ai_mode          = mode;
@@ -45,14 +45,14 @@ Board *newBoard (int size, int mode) {
 	for (int i = 0; i < board->size; i++)
 		board->cells[i] = malloc(sizeof(char) * board->size);
 
-	clearBoard(board);
+	clear_board(board);
 
 	board->nmoves_played = 0;
 
 	return board;
 }
 
-void drawBoard(Point location, Point boundary, int size) {
+void draw_board(Point location, Point boundary, int size) {
 	int i, j, current_symbol;
 	for (i = 0; i <= boundary.y; i++) {
 		for (j = 0; j <= boundary.x; j++) {
@@ -95,7 +95,7 @@ void drawBoard(Point location, Point boundary, int size) {
 	refresh();
 }
 
-void moveCursor (Point origin, Point destination, Point board_location, Point board_boundary, int size) {
+void move_cursor(Point origin, Point destination, Point board_location, Point board_boundary, int size) {
 	int i, x, y;
 	attron(COLOR_PAIR(3));
 	for (i = 0; i <= 10; i++) {
@@ -112,7 +112,7 @@ void moveCursor (Point origin, Point destination, Point board_location, Point bo
 	attroff(COLOR_PAIR(3));
 }
 
-void drawCell (Point destination, char symbol) {
+void draw_cell(Point destination, char symbol) {
 	if (symbol == 'X') {
 		attron(COLOR_PAIR(1));
 		mvaddch(destination.y, destination.x, symbol);
@@ -124,7 +124,7 @@ void drawCell (Point destination, char symbol) {
 	}
 }
 
-void placeCell (Point destination, Board *board) {
+void placeCell(Point destination, Board *board) {
 	char current_symbol;
 
 	if (board->cells[destination.x][destination.y] == '\0') {
@@ -139,7 +139,7 @@ void placeCell (Point destination, Board *board) {
 			.y = board->boundary.y/board->size * destination.y + board->location.y + 3
 		};
 
-		drawCell(cell_location, current_symbol);
+		draw_cell(cell_location, current_symbol);
 		board->cells[destination.x][destination.y] = current_symbol;
 		board->nmoves_played++;
 		board->last_cell_symbol = current_symbol;
@@ -148,7 +148,7 @@ void placeCell (Point destination, Board *board) {
 	}
 }
 
-Point placeCellRandom (Board *board) {
+Point place_cell_random(Board *board) {
 	int x, y;
 	do {
 		x = ((int) rand() % (board->size-1 + 1 - 0)) + 0;
@@ -166,47 +166,47 @@ Point placeCellRandom (Board *board) {
 	return destination;
 }
 
-void drawGameStats(Point board_location, int board_size, int game_moves, int current_player) {
+void draw_game_stats(Point board_location, int board_size, int game_moves, int current_player) {
 	mvprintw(board_location.y, board_location.x + 14 * board_size, "Player: %d (plays %c)", current_player, current_player == 1 ? 'X' : 'O');
 	mvprintw(board_location.y + 2, board_location.x + 14 * board_size, "Moves: %d", game_moves);
 }
 
-int isWinning (Point last_destination, char symbol, Board *board) {
+int has_won(Point last_destination, char player, Board *board) {
 	// columns
-	for(int i = 0; i < board->size; i++){
-		if(board->cells[last_destination.x][i] != symbol)
+	for (int i = 0; i < board->size; i++) {
+		if (board->cells[last_destination.x][i] != player)
 			break;
-		if(i == board->size - 1){
+		if (i == board->size - 1) {
 			return 1;
 		}
 	}
 
 	// rows
-	for(int i = 0; i < board->size; i++){
-		if(board->cells[i][last_destination.y] != symbol)
+	for (int i = 0; i < board->size; i++) {
+		if (board->cells[i][last_destination.y] != player)
 			break;
-		if(i == board->size - 1){
+		if (i == board->size - 1) {
 			return 1;
 		}
 	}
 
 	// diagonal
-	if(last_destination.x == last_destination.y){
-		for(int i = 0; i < board->size; i++){
-			if(board->cells[i][i] != symbol)
+	if (last_destination.x == last_destination.y) {
+		for (int i = 0; i < board->size; i++) {
+			if (board->cells[i][i] != player)
 				break;
-			if(i == board->size - 1){
+			if (i == board->size - 1) {
 				return 1;
 			}
 		}
 	}
 
 	// anti diagonal
-	if(last_destination.x + last_destination.y == board->size - 1){
-		for(int i = 0; i < board->size; i++){
-			if(board->cells[i][(board->size-1)-i] != symbol)
+	if (last_destination.x + last_destination.y == board->size - 1) {
+		for (int i = 0; i < board->size; i++) {
+			if (board->cells[i][(board->size-1)-i] != player)
 				break;
-			if(i == board->size - 1){
+			if (i == board->size - 1){
 				return 1;
 			}
 		}
@@ -215,7 +215,7 @@ int isWinning (Point last_destination, char symbol, Board *board) {
 	return 0;
 }
 
-int isDraw (Board *board) {
+int is_a_draw(Board *board) {
 	if (board->nmoves_played == (pow(board->size, 2) - 1)) {
 		return 1;
 	}
@@ -223,22 +223,22 @@ int isDraw (Board *board) {
 	return 0;
 }
 
-void gameOver (Point last_destination, Board *board) {
-	if (isWinning(last_destination, board->last_cell_symbol, board)) {
+void is_game_over(Point last_destination, Board *board) {
+	if (has_won(last_destination, board->last_cell_symbol, board)) {
 		mvprintw(board->location.y + 4, board->location.x + 14 * board->size, "Player %d Wins!", board->last_player);
 	}
 
-	if (isDraw(board)) {
+	if (is_a_draw(board)) {
 		mvprintw(board->location.y + 4, board->location.x + 14 * board->size, "Draw!! Nobody Wins.");
 	}
 }
 
-MiniMaxRes minimax (Point last_destination, char player, Board *board) {
-	if (isWinning(last_destination, 'X', board)) {
+MiniMaxRes minimax(Point last_destination, char player, Board *board) {
+	if (has_won(last_destination, 'X', board)) {
 		return (MiniMaxRes) { .score = -10 };
-	} else if (isWinning(last_destination, 'O', board)) {
+	} else if (has_won(last_destination, 'O', board)) {
 		return (MiniMaxRes) { .score = 10 };
-	} else if (isDraw(board)) {
+	} else if (is_a_draw(board)) {
 		return (MiniMaxRes) { .score = 0 };
 	}
 
@@ -294,14 +294,14 @@ MiniMaxRes minimax (Point last_destination, char player, Board *board) {
 	return moves[best_move_idx];
 }
 
-int main (int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 	int max_y, max_x;
 	int exit_game            = 0;
 	int board_size           = argv[1] ? strtol(argv[1], NULL, 10) : 3;
 	int game_mode            = argv[2] ? strtol(argv[2], NULL, 10) : 0;
 	Point cursor_origin      = (Point) { .x = 0, .y = 0 };
 	Point cursor_destination = (Point) { .x = 0, .y = 0 };
-	Board *board             = newBoard(board_size, game_mode);
+	Board *board             = new_board(board_size, game_mode);
 
 	initscr();
 	noecho();
@@ -318,49 +318,49 @@ int main (int argc, char *argv[]) {
 		board->location = (Point) { .x = max_x / 2 - 20, .y = max_y / 2 - 10 };
 		board->boundary = (Point) { .x = board->size * 12, .y = board->size * 6 };
 
-		drawBoard(board->location, board->boundary, board->size);
-		moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
-		drawGameStats(board->location, board->size, board->nmoves_played, board->current_player);
+		draw_board(board->location, board->boundary, board->size);
+		move_cursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+		draw_game_stats(board->location, board->size, board->nmoves_played, board->current_player);
 
 		int keyPressed = getch();
 		switch (keyPressed) {
 			case KEY_UP:
 				if (cursor_origin.y > 0) {
 					cursor_destination.y = cursor_origin.y - 1;
-					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					move_cursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
 					cursor_origin.y      = cursor_destination.y;
 				}
 				break;
 			case KEY_DOWN:
 				if (cursor_origin.y < board->size-1) {
 					cursor_destination.y = cursor_origin.y + 1;
-					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					move_cursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
 					cursor_origin.y      = cursor_destination.y;
 				}
 				break;
 			case KEY_RIGHT:
 				if (cursor_origin.x < board->size-1) {
 					cursor_destination.x = cursor_origin.x + 1;
-					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					move_cursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
 					cursor_origin.x      = cursor_destination.x;
 				}
 				break;
 			case KEY_LEFT:
 				if (cursor_origin.x > 0) {
 					cursor_destination.x = cursor_origin.x - 1;
-					moveCursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
+					move_cursor(cursor_origin, cursor_destination, board->location, board->boundary, board->size);
 					cursor_origin.x      = cursor_destination.x;
 				}
 				break;
 			case ' ':
 				placeCell(cursor_destination, board);
-				gameOver(cursor_destination, board);
+				is_game_over(cursor_destination, board);
 				if (board->ai_mode) {
           MiniMaxRes mmres = minimax(cursor_destination, 'O', board);
           Point new_dest = (Point) { .x = mmres.i, .y = mmres.j };
           /* mvprintw(1, 2, "%d %d %d", mmres.score, mmres.i, mmres.j); */
           placeCell(new_dest, board);
-					gameOver(new_dest, board);
+					is_game_over(new_dest, board);
 				}
 				break;
 			case 'q':
@@ -369,8 +369,8 @@ int main (int argc, char *argv[]) {
 		}
 	}
 
-    resetty();
-	endwin();
+  resetty();
+  endwin();
 
 	return 0;
 }
