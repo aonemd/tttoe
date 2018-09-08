@@ -254,11 +254,12 @@ MiniMaxRes minimax (Point last_destination, char player, Board *board) {
 
 				board->cells[i][j] = player;
 
+        // caclulate the score for the opponent
 				if (player == 'O') {
-					MiniMaxRes mmres = minimax(last_destination, 'O', board);
+					MiniMaxRes mmres = minimax(last_destination, 'X', board);
 					move.score = mmres.score;
 				} else if (player == 'X') {
-					MiniMaxRes mmres = minimax(last_destination, 'X', board);
+					MiniMaxRes mmres = minimax(last_destination, 'O', board);
 					move.score = mmres.score;
 				}
 
