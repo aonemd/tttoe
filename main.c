@@ -4,6 +4,9 @@
 #include <string.h>
 #include <ncurses.h>
 
+# define HUMAN_PLAYER 'X'
+# define AI_PLAYER 'O'
+
 typedef struct Point {
 	int x, y;
 } Point;
@@ -234,9 +237,9 @@ void is_game_over(Point last_destination, Board *board) {
 }
 
 MiniMaxRes minimax(Point last_destination, char player, Board *board) {
-	if (has_won(last_destination, 'X', board)) {
+	if (has_won(last_destination, HUMAN_PLAYER, board)) {
 		return (MiniMaxRes) { .score = -10 };
-	} else if (has_won(last_destination, 'O', board)) {
+	} else if (has_won(last_destination, AI_PLAYER, board)) {
 		return (MiniMaxRes) { .score = 10 };
 	} else if (is_a_draw(board)) {
 		return (MiniMaxRes) { .score = 0 };
@@ -255,11 +258,11 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 				board->cells[i][j] = player;
 
 				// caclulate the score for the opponent
-				if (player == 'O') {
-					MiniMaxRes mmres = minimax(last_destination, 'X', board);
+				if (player == AI_PLAYER) {
+					MiniMaxRes mmres = minimax(last_destination, HUMAN_PLAYER, board);
 					move.score = mmres.score;
-				} else if (player == 'X') {
-					MiniMaxRes mmres = minimax(last_destination, 'O', board);
+				} else if (player == HUMAN_PLAYER) {
+					MiniMaxRes mmres = minimax(last_destination, AI_PLAYER, board);
 					move.score = mmres.score;
 				}
 
@@ -273,7 +276,7 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 	}
 
 	int best_move_idx;
-	if (player == 'O') {
+	if (player == AI_PLAYER) {
 		int best_score = -10000;
 		for (int i = 0; i < moves_size; i++) {
 			if (moves[i].score > best_score) {
@@ -356,7 +359,7 @@ int main(int argc, char *argv[]) {
 				placeCell(cursor_destination, board);
 				is_game_over(cursor_destination, board);
 				if (board->ai_mode) {
-					MiniMaxRes mmres = minimax(cursor_destination, 'O', board);
+					MiniMaxRes mmres = minimax(cursor_destination, AI_PLAYER, board);
 					Point new_dest   = (Point) { .x = mmres.i, .y = mmres.j };
 					placeCell(new_dest, board);
 					is_game_over(new_dest, board);
