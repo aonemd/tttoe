@@ -4,10 +4,10 @@ CFLAGS=-Wall -Wextra -g
 all: build run
 
 build:
-	$(CC) $(CFLAGS) -lncurses -lm -o main.out main.c
+	$(CC) $(CFLAGS) -lncurses -lm -o ttt ttt.c
 
 run:
-	./main.out
+	./ttt
 
 clean:
-	rm main.out
+	rm ttt
