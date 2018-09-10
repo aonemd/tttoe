@@ -23,11 +23,11 @@ typedef struct Board {
 	char **cells;
 } Board;
 
-typedef struct MiniMaxRes {
+typedef struct MiniMaxResult {
 	int score;
 	int i;
 	int j;
-} MiniMaxRes;
+} MiniMaxResult;
 
 void clear_board(Board *board) {
 	for (int i = 0; i <  board->size; i++)
@@ -236,22 +236,22 @@ void is_game_over(Point last_destination, Board *board) {
 	}
 }
 
-MiniMaxRes minimax(Point last_destination, char player, Board *board) {
+MiniMaxResult minimax(Point last_destination, char player, Board *board) {
 	if (has_won(last_destination, HUMAN_PLAYER, board)) {
-		return (MiniMaxRes) { .score = -10 };
+		return (MiniMaxResult) { .score = -10 };
 	} else if (has_won(last_destination, AI_PLAYER, board)) {
-		return (MiniMaxRes) { .score = 10 };
+		return (MiniMaxResult) { .score = 10 };
 	} else if (is_a_draw(board)) {
-		return (MiniMaxRes) { .score = 0 };
+		return (MiniMaxResult) { .score = 0 };
 	}
 
-	MiniMaxRes *moves = malloc(sizeof(MiniMaxRes *) * board->size * board->size);
+	MiniMaxResult *moves = malloc(sizeof(MiniMaxResult *) * board->size * board->size);
 	size_t moves_size = 0;
 
 	for (int i = 0; i < board->size; i++) {
 		for (int j = 0; j < board->size; j++) {
 			if (board->cells[i][j] == '\0') {
-				MiniMaxRes move;
+				MiniMaxResult move;
 				move.i = i;
 				move.j = j;
 
@@ -259,11 +259,11 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 
 				// caclulate the score for the opponent
 				if (player == AI_PLAYER) {
-					MiniMaxRes mmres = minimax(last_destination, HUMAN_PLAYER, board);
-					move.score = mmres.score;
+					MiniMaxResult mm_result = minimax(last_destination, HUMAN_PLAYER, board);
+					move.score = mm_result.score;
 				} else if (player == HUMAN_PLAYER) {
-					MiniMaxRes mmres = minimax(last_destination, AI_PLAYER, board);
-					move.score = mmres.score;
+					MiniMaxResult mm_result = minimax(last_destination, AI_PLAYER, board);
+					move.score = mm_result.score;
 				}
 
 				// reset the board to what it was
@@ -360,8 +360,8 @@ int main(int argc, char *argv[]) {
 				placeCell(cursor_destination, board);
 				is_game_over(cursor_destination, board);
 				if (board->ai_mode) {
-					MiniMaxRes mmres = minimax(cursor_destination, AI_PLAYER, board);
-					Point new_dest   = (Point) { .x = mmres.i, .y = mmres.j };
+					MiniMaxResult mm_result = minimax(cursor_destination, AI_PLAYER, board);
+					Point new_dest   = (Point) { .x = mm_result.i, .y = mm_result.j };
 					placeCell(new_dest, board);
 					is_game_over(new_dest, board);
 				}
