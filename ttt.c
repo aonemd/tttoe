@@ -278,7 +278,7 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 	int best_move_idx;
 	if (player == AI_PLAYER) {
 		int best_score = -10000;
-		for (int i = 0; i < moves_size; i++) {
+		for (unsigned int i = 0; i < moves_size; i++) {
 			if (moves[i].score > best_score) {
 				best_score = moves[i].score;
 				best_move_idx = i;
@@ -286,7 +286,7 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 		}
 	} else {
 		int best_score = 10000;
-		for (int i = 0; i < moves_size; i++) {
+		for (unsigned int i = 0; i < moves_size; i++) {
 			if (moves[i].score < best_score) {
 				best_score = moves[i].score;
 				best_move_idx = i;
@@ -298,6 +298,7 @@ MiniMaxRes minimax(Point last_destination, char player, Board *board) {
 }
 
 int main(int argc, char *argv[]) {
+	(void) argc; // ignore this
 	int max_y, max_x;
 	int exit_game            = 0;
 	int board_size           = argv[1] ? strtol(argv[1], NULL, 10) : 3;
