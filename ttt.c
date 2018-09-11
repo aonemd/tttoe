@@ -297,6 +297,15 @@ MiniMaxResult minimax(Point last_destination, char player, Board *board) {
 	return moves[best_move_idx];
 }
 
+void handle_ai(Point last_destination, Board *board) {
+	MiniMaxResult mm_result = minimax(last_destination, AI_PLAYER, board);
+	Point new_dest          = (Point) { .x = mm_result.i, .y = mm_result.j };
+
+	placeCell(new_dest, board);
+
+	is_game_over(new_dest, board);
+}
+
 int main(int argc, char *argv[]) {
 	(void) argc; // ignore this
 	int max_y, max_x;
@@ -360,10 +369,7 @@ int main(int argc, char *argv[]) {
 				placeCell(cursor_destination, board);
 				is_game_over(cursor_destination, board);
 				if (board->ai_mode) {
-					MiniMaxResult mm_result = minimax(cursor_destination, AI_PLAYER, board);
-					Point new_dest   = (Point) { .x = mm_result.i, .y = mm_result.j };
-					placeCell(new_dest, board);
-					is_game_over(new_dest, board);
+					handle_ai(cursor_destination, board);
 				}
 				break;
 			case 'q':
