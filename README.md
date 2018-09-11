@@ -18,8 +18,8 @@ An ncurses based tic tac toe with multi-player and single-player AI mode
 You can pass two command-line parameters to the binary:
 - the first parameter is the size of the grid, for example, you can pass 4 to
   play in a 4x4 sized grid: `./ttt 4`. Defaults to 3
-- the second parameter is the game mode; 0 for two-player mode, 1 for AI
-  mode.  Defaults to 0
+- the second parameter is the game mode; 0 for two-player mode: `./ttt 3 0`, 1
+  for AI mode: `./ttt 3 1`. Defaults to 0
 
 ### License
 
