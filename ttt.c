@@ -26,8 +26,8 @@ typedef struct Board {
 
 typedef struct MiniMaxMove {
 	int score;
-	int i;
-	int j;
+	int x;
+	int y;
 } MiniMaxMove;
 
 void clear_board(Board *board) {
@@ -253,8 +253,8 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 		for (int j = 0; j < board->size; j++) {
 			if (board->cells[i][j] == '\0') {
 				MiniMaxMove move;
-				move.i = i;
-				move.j = j;
+				move.x = i;
+				move.y = j;
 
 				board->cells[i][j] = player;
 
@@ -300,7 +300,7 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 
 void handle_ai(Point last_destination, Board *board) {
 	MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board);
-	Point new_dest          = (Point) { .x = mm_move.i, .y = mm_move.j };
+	Point new_dest          = (Point) { .x = mm_move.x, .y = mm_move.y };
 
 	placeCell(new_dest, board);
 
