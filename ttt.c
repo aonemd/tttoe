@@ -6,6 +6,7 @@
 
 # define HUMAN_PLAYER 'X'
 # define AI_PLAYER 'O'
+# define NONE '\0'
 
 typedef struct Point {
 	int x, y;
@@ -32,7 +33,7 @@ typedef struct MiniMaxMove {
 void clear_board(Board *board) {
 	for (int i = 0; i <  board->size; i++)
 		for (int j = 0; j < board->size; j++)
-			board->cells[i][j] = '\0';
+			board->cells[i][j] = NONE;
 
 	board->nmoves_played = 0;
 }
