@@ -23,11 +23,11 @@ typedef struct Board {
 	char **cells;
 } Board;
 
-typedef struct MiniMaxResult {
+typedef struct MiniMaxMove {
 	int score;
 	int i;
 	int j;
-} MiniMaxResult;
+} MiniMaxMove;
 
 void clear_board(Board *board) {
 	for (int i = 0; i <  board->size; i++)
@@ -236,22 +236,22 @@ void is_game_over(Point last_destination, Board *board) {
 	}
 }
 
-MiniMaxResult minimax(Point last_destination, char player, Board *board) {
+MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 	if (has_won(last_destination, HUMAN_PLAYER, board)) {
-		return (MiniMaxResult) { .score = -10 };
+		return (MiniMaxMove) { .score = -10 };
 	} else if (has_won(last_destination, AI_PLAYER, board)) {
-		return (MiniMaxResult) { .score = 10 };
+		return (MiniMaxMove) { .score = 10 };
 	} else if (is_a_draw(board)) {
-		return (MiniMaxResult) { .score = 0 };
+		return (MiniMaxMove) { .score = 0 };
 	}
 
-	MiniMaxResult *moves = malloc(sizeof(MiniMaxResult *) * board->size * board->size);
+	MiniMaxMove *moves = malloc(sizeof(MiniMaxMove *) * board->size * board->size);
 	size_t moves_size = 0;
 
 	for (int i = 0; i < board->size; i++) {
 		for (int j = 0; j < board->size; j++) {
 			if (board->cells[i][j] == '\0') {
-				MiniMaxResult move;
+				MiniMaxMove move;
 				move.i = i;
 				move.j = j;
 
@@ -259,11 +259,11 @@ MiniMaxResult minimax(Point last_destination, char player, Board *board) {
 
 				// caclulate the score for the opponent
 				if (player == AI_PLAYER) {
-					MiniMaxResult mm_result = minimax(last_destination, HUMAN_PLAYER, board);
-					move.score = mm_result.score;
+					MiniMaxMove mm_move = minimax(last_destination, HUMAN_PLAYER, board);
+					move.score = mm_move.score;
 				} else if (player == HUMAN_PLAYER) {
-					MiniMaxResult mm_result = minimax(last_destination, AI_PLAYER, board);
-					move.score = mm_result.score;
+					MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board);
+					move.score = mm_move.score;
 				}
 
 				// reset the board to what it was
@@ -298,8 +298,8 @@ MiniMaxResult minimax(Point last_destination, char player, Board *board) {
 }
 
 void handle_ai(Point last_destination, Board *board) {
-	MiniMaxResult mm_result = minimax(last_destination, AI_PLAYER, board);
-	Point new_dest          = (Point) { .x = mm_result.i, .y = mm_result.j };
+	MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board);
+	Point new_dest          = (Point) { .x = mm_move.i, .y = mm_move.j };
 
 	placeCell(new_dest, board);
 
