@@ -49,7 +49,7 @@ void clear_board(Board *board) {
 }
 
 Board *new_board(int size, int mode) {
-	Board *board = malloc(sizeof(Board));
+	Board *board = malloc(sizeof(*board));
 	board->size             = size;
 	board->ai_mode          = mode;
 	board->current_player   = 1;
@@ -256,7 +256,7 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 		return (MiniMaxMove) { .score = 0 };
 	}
 
-	MiniMaxMove *moves = malloc(sizeof(MiniMaxMove *) * board->size * board->size);
+	MiniMaxMove *moves = malloc(sizeof(*moves) * board->size * board->size);
 	size_t moves_size = 0;
 
 	for (int i = 0; i < board->size; i++) {
