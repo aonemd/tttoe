@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ncurses.h>
 
@@ -184,13 +185,13 @@ void draw_game_stats(Point board_location, int board_size, int game_moves, int c
 	mvprintw(board_location.y + 2, board_location.x + 14 * board_size, "Moves: %d", game_moves);
 }
 
-int has_won(Point last_destination, char player, Board *board) {
+bool has_won(Point last_destination, char player, Board *board) {
 	// columns
 	for (int i = 0; i < board->size; i++) {
 		if (board->cells[last_destination.x][i] != player)
 			break;
 		if (i == board->size - 1) {
-			return 1;
+			return true;
 		}
 	}
 
@@ -199,7 +200,7 @@ int has_won(Point last_destination, char player, Board *board) {
 		if (board->cells[i][last_destination.y] != player)
 			break;
 		if (i == board->size - 1) {
-			return 1;
+			return true;
 		}
 	}
 
@@ -209,7 +210,7 @@ int has_won(Point last_destination, char player, Board *board) {
 			if (board->cells[i][i] != player)
 				break;
 			if (i == board->size - 1) {
-				return 1;
+				return true;
 			}
 		}
 	}
@@ -220,20 +221,16 @@ int has_won(Point last_destination, char player, Board *board) {
 			if (board->cells[i][(board->size-1)-i] != player)
 				break;
 			if (i == board->size - 1){
-				return 1;
+				return true;
 			}
 		}
 	}
 
-	return 0;
+	return false;
 }
 
-int is_a_draw(Board *board) {
-	if (board->nmoves_played == ((board->size * board->size) - 1)) {
-		return 1;
-	}
-
-	return 0;
+bool is_a_draw(Board *board) {
+	return board->nmoves_played == ((board->size * board->size) - 1);
 }
 
 void is_game_over(Point last_destination, Board *board) {
