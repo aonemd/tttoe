@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <limits.h>
 #include <ncurses.h>
 
 #define max(a, b) \
@@ -284,7 +285,7 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 
 	int best_move_idx;
 	if (player == AI_PLAYER) {
-		int best_score = -10000;
+		int best_score = INT_MIN;
 		for (unsigned int i = 0; i < moves_size; i++) {
 			if (moves[i].score > best_score) {
 				best_score = moves[i].score;
@@ -292,7 +293,7 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 			}
 		}
 	} else {
-		int best_score = 10000;
+		int best_score = INT_MAX;
 		for (unsigned int i = 0; i < moves_size; i++) {
 			if (moves[i].score < best_score) {
 				best_score = moves[i].score;
