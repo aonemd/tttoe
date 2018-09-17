@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 #include <ncurses.h>
 
@@ -230,7 +229,7 @@ int has_won(Point last_destination, char player, Board *board) {
 }
 
 int is_a_draw(Board *board) {
-	if (board->nmoves_played == (pow(board->size, 2) - 1)) {
+	if (board->nmoves_played == ((board->size * board->size) - 1)) {
 		return 1;
 	}
 

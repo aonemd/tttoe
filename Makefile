@@ -4,7 +4,7 @@ CFLAGS=-Wall -Wextra -g
 all: build run
 
 build:
-	$(CC) $(CFLAGS) -lncurses -lm -o ttt ttt.c
+	$(CC) $(CFLAGS) -lncurses -o ttt ttt.c
 
 run:
 	./ttt
