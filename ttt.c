@@ -13,9 +13,9 @@
    __typeof__ (b) _b = (b); \
    _a < _b ? _a : _b; })
 
-# define HUMAN_PLAYER 'X'
-# define AI_PLAYER 'O'
-# define NONE '\0'
+static const char HUMAN_PLAYER = 'X';
+static const char AI_PLAYER = 'O';
+static const char NONE = '\0';
 
 typedef struct Point {
 	int x, y;
