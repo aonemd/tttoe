@@ -244,6 +244,7 @@ void is_game_over(Point last_destination, Board *board) {
 	}
 }
 
+MiniMaxMove best_move = {};
 MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 	if (has_won(last_destination, HUMAN_PLAYER, board)) {
 		return (MiniMaxMove) { .score = -10 };
@@ -253,56 +254,39 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 		return (MiniMaxMove) { .score = 0 };
 	}
 
-	MiniMaxMove *moves = malloc(sizeof(*moves) * board->size * board->size);
-	size_t moves_size = 0;
-
+	if (player == AI_PLAYER) {
+		best_move.score = INT_MIN;
+	} else if (player == HUMAN_PLAYER) {
+		best_move.score = INT_MAX;
+	}
 	for (int i = 0; i < board->size; i++) {
 		for (int j = 0; j < board->size; j++) {
-			if (board->cells[i][j] == '\0') {
-				MiniMaxMove move;
-				move.x = i;
-				move.y = j;
-
+			if (board->cells[i][j] == NONE) {
 				board->cells[i][j] = player;
 
-				// caclulate the score for the opponent
 				if (player == AI_PLAYER) {
-					MiniMaxMove mm_move = minimax(last_destination, HUMAN_PLAYER, board);
-					move.score = mm_move.score;
+					MiniMaxMove result_move = minimax(last_destination, HUMAN_PLAYER, board);
+
+					if (result_move.score > best_move.score) {
+						best_move.score = result_move.score;
+						best_move.x = i;
+						best_move.y = j;
+					}
 				} else if (player == HUMAN_PLAYER) {
-					MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board);
-					move.score = mm_move.score;
+					MiniMaxMove result_move = minimax(last_destination, AI_PLAYER, board);
+
+					if (result_move.score < best_move.score) {
+						best_move.score = result_move.score;
+						best_move.x = i;
+						best_move.y = j;
+					}
 				}
 
-				// reset the board to what it was
-				board->cells[i][j] = '\0';
-
-				moves[moves_size++] = move;
-
+				board->cells[i][j] = NONE;
 			}
 		}
 	}
-
-	int best_move_idx;
-	if (player == AI_PLAYER) {
-		int best_score = INT_MIN;
-		for (unsigned int i = 0; i < moves_size; i++) {
-			if (moves[i].score > best_score) {
-				best_score = moves[i].score;
-				best_move_idx = i;
-			}
-		}
-	} else {
-		int best_score = INT_MAX;
-		for (unsigned int i = 0; i < moves_size; i++) {
-			if (moves[i].score < best_score) {
-				best_score = moves[i].score;
-				best_move_idx = i;
-			}
-		}
-	}
-
-	return moves[best_move_idx];
+	return best_move;
 }
 
 void handle_ai(Point last_destination, Board *board) {
