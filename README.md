@@ -5,7 +5,7 @@ An ncurses based tic tac toe with multi-player and single-player AI mode
 
 ### Build
 
-- You need to have the version of ncurses on your system.
+- You need to have ncurses on your system.
   On Ubuntu, for example, you should run the following to install the library:
   ```bash
   $ sudo apt-get install libncurses5-dev libncursesw5-dev
