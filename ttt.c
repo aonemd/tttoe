@@ -245,7 +245,8 @@ void is_game_over(Point last_destination, Board *board) {
 }
 
 MiniMaxMove best_move = {};
-MiniMaxMove minimax(Point last_destination, char player, Board *board) {
+bool pruningEnabled = false;
+MiniMaxMove minimax(Point last_destination, char player, Board *board, int alpha, int beta) {
 	if (has_won(last_destination, HUMAN_PLAYER, board)) {
 		return (MiniMaxMove) { .score = -10 };
 	} else if (has_won(last_destination, AI_PLAYER, board)) {
@@ -265,24 +266,28 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 				board->cells[i][j] = player;
 
 				if (player == AI_PLAYER) {
-					MiniMaxMove result_move = minimax(last_destination, HUMAN_PLAYER, board);
-
+					MiniMaxMove result_move = minimax(last_destination, HUMAN_PLAYER, board, alpha, beta);
 					if (result_move.score > best_move.score) {
 						best_move.score = result_move.score;
 						best_move.x = i;
 						best_move.y = j;
 					}
-				} else if (player == HUMAN_PLAYER) {
-					MiniMaxMove result_move = minimax(last_destination, AI_PLAYER, board);
 
+					alpha = max(alpha, result_move.score);
+				} else if (player == HUMAN_PLAYER) {
+					MiniMaxMove result_move = minimax(last_destination, AI_PLAYER, board, alpha, beta);
 					if (result_move.score < best_move.score) {
 						best_move.score = result_move.score;
 						best_move.x = i;
 						best_move.y = j;
 					}
+
+					beta = min(beta, result_move.score);
 				}
 
 				board->cells[i][j] = NONE;
+
+				if (pruningEnabled && beta <= alpha) break;
 			}
 		}
 	}
@@ -290,8 +295,8 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board) {
 }
 
 void handle_ai(Point last_destination, Board *board) {
-	MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board);
-	Point new_dest          = (Point) { .x = mm_move.x, .y = mm_move.y };
+	MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board, INT_MIN, INT_MAX);
+	Point new_dest = (Point) { .x = mm_move.x, .y = mm_move.y };
 
 	placeCell(new_dest, board);
 
