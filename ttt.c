@@ -139,7 +139,7 @@ void draw_cell(Point destination, char symbol) {
 	}
 }
 
-void placeCell(Point destination, Board* board) {
+void place_cell(Point destination, Board* board) {
 	char current_symbol;
 
 	if (board->cells[destination.x][destination.y] == '\0') {
@@ -176,7 +176,7 @@ Point place_cell_random(Board* board) {
 		.y = y
 	};
 
-	placeCell(destination, board);
+	place_cell(destination, board);
 
 	return destination;
 }
@@ -298,7 +298,7 @@ void handle_ai(Point last_destination, Board* board) {
 	MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board, INT_MIN, INT_MAX);
 	Point new_dest = (Point) { .x = mm_move.x, .y = mm_move.y };
 
-	placeCell(new_dest, board);
+	place_cell(new_dest, board);
 
 	is_game_over(new_dest, board);
 }
@@ -363,7 +363,7 @@ int main(int argc, char* argv[]) {
 				}
 				break;
 			case ' ':
-				placeCell(cursor_destination, board);
+				place_cell(cursor_destination, board);
 				is_game_over(cursor_destination, board);
 				if (board->ai_mode) {
 					handle_ai(cursor_destination, board);
