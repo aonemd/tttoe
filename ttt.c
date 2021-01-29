@@ -32,7 +32,7 @@ typedef struct Board {
 	int nmoves_played;
 	int ai_mode;
 	char last_cell_symbol;
-	char **cells;
+	char** cells;
 } Board;
 
 typedef struct MiniMaxMove {
@@ -41,7 +41,7 @@ typedef struct MiniMaxMove {
 	int y;
 } MiniMaxMove;
 
-void clear_board(Board *board) {
+void clear_board(Board* board) {
 	for (int i = 0; i <  board->size; i++)
 		for (int j = 0; j < board->size; j++)
 			board->cells[i][j] = NONE;
@@ -49,8 +49,8 @@ void clear_board(Board *board) {
 	board->nmoves_played = 0;
 }
 
-Board *new_board(int size, int mode) {
-	Board *board = malloc(sizeof(*board));
+Board* new_board(int size, int mode) {
+	Board* board = malloc(sizeof(*board));
 	board->size             = size;
 	board->ai_mode          = mode;
 	board->current_player   = 1;
@@ -139,7 +139,7 @@ void draw_cell(Point destination, char symbol) {
 	}
 }
 
-void placeCell(Point destination, Board *board) {
+void placeCell(Point destination, Board* board) {
 	char current_symbol;
 
 	if (board->cells[destination.x][destination.y] == '\0') {
@@ -163,7 +163,7 @@ void placeCell(Point destination, Board *board) {
 	}
 }
 
-Point place_cell_random(Board *board) {
+Point place_cell_random(Board* board) {
 	int x, y;
 	do {
 		x = ((int) rand() % (board->size-1 + 1 - 0)) + 0;
@@ -186,7 +186,7 @@ void draw_game_stats(Point board_location, int board_size, int game_moves, int c
 	mvprintw(board_location.y + 2, board_location.x + 14 * board_size, "Moves: %d", game_moves);
 }
 
-bool has_won(Point last_destination, char player, Board *board) {
+bool has_won(Point last_destination, char player, Board* board) {
 	// columns
 	for (int i = 0; i < board->size; i++) {
 		if (board->cells[last_destination.x][i] != player)
@@ -230,11 +230,11 @@ bool has_won(Point last_destination, char player, Board *board) {
 	return false;
 }
 
-bool is_a_draw(Board *board) {
+bool is_a_draw(Board* board) {
 	return board->nmoves_played == ((board->size * board->size) - 1);
 }
 
-void is_game_over(Point last_destination, Board *board) {
+void is_game_over(Point last_destination, Board* board) {
 	if (has_won(last_destination, board->last_cell_symbol, board)) {
 		mvprintw(board->location.y + 4, board->location.x + 14 * board->size, "Player %d Wins!", board->last_player);
 	}
@@ -246,7 +246,7 @@ void is_game_over(Point last_destination, Board *board) {
 
 MiniMaxMove best_move = {};
 bool pruningEnabled = false;
-MiniMaxMove minimax(Point last_destination, char player, Board *board, int alpha, int beta) {
+MiniMaxMove minimax(Point last_destination, char player, Board* board, int alpha, int beta) {
 	if (has_won(last_destination, HUMAN_PLAYER, board)) {
 		return (MiniMaxMove) { .score = -10 };
 	} else if (has_won(last_destination, AI_PLAYER, board)) {
@@ -294,7 +294,7 @@ MiniMaxMove minimax(Point last_destination, char player, Board *board, int alpha
 	return best_move;
 }
 
-void handle_ai(Point last_destination, Board *board) {
+void handle_ai(Point last_destination, Board* board) {
 	MiniMaxMove mm_move = minimax(last_destination, AI_PLAYER, board, INT_MIN, INT_MAX);
 	Point new_dest = (Point) { .x = mm_move.x, .y = mm_move.y };
 
@@ -303,7 +303,7 @@ void handle_ai(Point last_destination, Board *board) {
 	is_game_over(new_dest, board);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 	(void) argc; // ignore this
 	int max_y, max_x;
 	int exit_game            = 0;
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 	int game_mode            = argv[2] ? strtol(argv[2], NULL, 10) : 0;
 	Point cursor_origin      = (Point) { .x = 0, .y = 0 };
 	Point cursor_destination = (Point) { .x = 0, .y = 0 };
-	Board *board             = new_board(board_size, game_mode);
+	Board* board             = new_board(board_size, game_mode);
 
 	initscr();
 	noecho();
