@@ -1,4 +1,4 @@
-ttt
+tttoe
 ---
 
 An ncurses based tic tac toe with multi-player and single-player AI mode
